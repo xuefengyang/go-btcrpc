@@ -192,3 +192,17 @@ func (c *RPCClient) DecodeRawTransactions(rawTxs []string) ([]*Transaction, erro
 	}
 	return txs, nil
 }
+
+func (c *RPCClient) ListTransactions(label string, count,skip int) ([]* IncomeTransaction, error) {
+	txs := make([]*IncomeTransaction,0)
+	resp, err :=  c.RPCClient.Call("listtransactions",label,count,skip)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := resp.GetObject(txs); err != nil {
+		return nil, err
+	}
+
+	return txs,nil
+}

@@ -1,5 +1,7 @@
 package btcrpc
 
+import "github.com/shopspring/decimal"
+
 // Block ...
 type Block struct {
 	Hash          string   `json:"hash"`
@@ -71,4 +73,20 @@ type VinCoinbaseTransaction struct {
 type ScriptSig struct {
 	Asm string `json:"asm"`
 	Hex string `json:"hex"`
+}
+
+type IncomeTransaction struct {
+	Address string `json:"address"`
+	Category string `json:"category"`
+	Amount decimal.Decimal `json:"amount"`
+	Label string `json:"label"`
+	Vout int `json:"vout"`
+	Confirmations int `json:"confirmations"`
+	Blockhash string `json:"blockhash"`
+	Blockindex int `json:"blockindex"`
+	Blocktime int64 `json:"blocktime"`
+	Txid string `json:"txid"`
+	Time int64 `json:"time"`
+	Timereceived int64 `json:"timereceived"`
+	Bip125Replaceable string `json:"bip125-replaceable"`
 }
