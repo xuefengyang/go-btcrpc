@@ -8,8 +8,8 @@ package btcrpc
 import (
 	"encoding/json"
 	"errors"
-
 	jsonrpc "github.com/KeisukeYamashita/go-jsonrpc"
+	"github.com/shopspring/decimal"
 )
 
 /*
@@ -200,9 +200,92 @@ func (c *RPCClient) ListTransactions(label string, count,skip int) ([]* IncomeTr
 		return nil, err
 	}
 
-	if err := resp.GetObject(txs); err != nil {
+	if resp.Error != nil {
+		return nil, errors.New(resp.Error.Message)
+	}
+
+	if err := resp.GetObject(&txs); err != nil {
 		return nil, err
 	}
 
 	return txs,nil
 }
+
+func (c * RPCClient) GetTransaction(txId string) ( *DetailTransaction, error) {
+	resp, err := c.RPCClient.Call("gettransaction", txId)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Error != nil {
+		return nil, errors.New(resp.Error.Message)
+	}
+
+	var tx DetailTransaction
+	if err := resp.GetObject(&tx); err != nil {
+		return nil,err
+	}
+
+	return &tx,nil
+}
+
+func (c *RPCClient) WalletPassPhrase(password string,time int) error  {
+	var (
+		resp *jsonrpc.RPCResponse
+		err error
+	)
+	if resp, err = c.RPCClient.Call("walletpassphrase", password,time); err != nil {
+		return err
+	}
+
+	if resp.Error != nil {
+		return errors.New(resp.Error.Message)
+	}
+
+	return nil
+}
+
+func (c *RPCClient) WalletLock() error  {
+	var (
+		resp *jsonrpc.RPCResponse
+		err error
+	)
+	if resp, err = c.RPCClient.Call("walletlock"); err != nil {
+		return err
+	}
+
+	if resp.Error != nil {
+		return errors.New(resp.Error.Message)
+	}
+
+	return nil
+}
+
+func (c *RPCClient) SendToAddress(to string, amount decimal.Decimal) (string ,error) {
+	var (
+		resp *jsonrpc.RPCResponse
+		err error
+	)
+
+	if resp, err = c.RPCClient.Call("sendtoaddress",to,amount.String(),""); err != nil {
+		return "", err
+	}
+
+	if resp.Error != nil {
+		return "", errors.New(resp.Error.Message)
+	}
+
+	txId, err := resp.GetString()
+	if err != nil {
+		return "",err
+	}
+
+	return txId, nil
+
+
+
+
+
+}
+
+

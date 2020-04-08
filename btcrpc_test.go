@@ -1,20 +1,22 @@
 package btcrpc
 
 import (
-	"log"
+	"fmt"
+	"github.com/shopspring/decimal"
 	"os"
 	"testing"
-
-	"github.com/joho/godotenv"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func init() {
-	err := godotenv.Load()
-	if err != nil && os.Getenv("GO_ENV") != "test" {
-		log.Fatal("Error loading .env file")
-	}
+	//err := godotenv.Load()
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	//if err != nil && os.Getenv("GO_ENV") != "test" {
+	//	log.Fatal("Error loading .env file")
+	//}
 }
 
 func TestRPCClient(t *testing.T) {
@@ -149,4 +151,70 @@ func TestDecodeRawTransaction(t *testing.T) {
 
 }
 
+func TestRPCClient_ListTransactions(t *testing.T) {
+	basicAuth := &BasicAuth{
+		Username: "u4hIgtkZxwJLLQxKZMUz",
+		Password: "g32Bt9Ic8UdzD5CTrDaj",
+	}
 
+	c := NewRPCClient("http://49.4.68.109:18332", basicAuth)
+
+	trx, err := c.ListTransactions("*",1,0)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _,tx := range trx {
+		fmt.Printf("address = %s, amount = %s, txid = %s, confirmations = %d\n",tx.Address,tx.Amount.String(),tx.Txid,tx.Confirmations)
+	}
+
+}
+
+func TestRPCClient_WalletPassPhrase(t *testing.T) {
+	basicAuth := &BasicAuth{
+		Username: "u4hIgtkZxwJLLQxKZMUz",
+		Password: "g32Bt9Ic8UdzD5CTrDaj",
+	}
+
+	c := NewRPCClient("http://49.4.68.109:18332", basicAuth)
+
+	if err := c.WalletPassPhrase("Asf2asc23523502?SDaf3gccc",10); err != nil {
+		t.Fatal(err)
+	}
+}
+
+//2NCYinGLfuDkhz8BokM2jF41jWd5JVvCa1E
+func TestRPCClient_WalletLock(t *testing.T) {
+	basicAuth := &BasicAuth{
+		Username: "u4hIgtkZxwJLLQxKZMUz",
+		Password: "g32Bt9Ic8UdzD5CTrDaj",
+	}
+
+	c := NewRPCClient("http://49.4.68.109:18332", basicAuth)
+
+	if err := c.WalletLock(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestRPCClient_SendToAddress(t *testing.T) {
+	basicAuth := &BasicAuth{
+		Username: "u4hIgtkZxwJLLQxKZMUz",
+		Password: "g32Bt9Ic8UdzD5CTrDaj",
+	}
+
+	c := NewRPCClient("http://49.4.68.109:18332", basicAuth)
+
+	c.WalletPassPhrase("Asf2asc23523502?SDaf3gccc",10)
+
+	txId, err := c.SendToAddress("2NCYinGLfuDkhz8BokM2jF41jWd5JVvCa1E",decimal.NewFromFloat32(0.0001))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(txId)
+
+	c.WalletLock()
+
+
+}

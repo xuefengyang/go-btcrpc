@@ -90,3 +90,10 @@ type IncomeTransaction struct {
 	Timereceived int64 `json:"timereceived"`
 	Bip125Replaceable string `json:"bip125-replaceable"`
 }
+
+
+type DetailTransaction struct {
+	Confirmations int `json:"confirmations"`
+	Txid string `json:"txid"`
+	Details [] IncomeTransaction `json:"details"`
+}
